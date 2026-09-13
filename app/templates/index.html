@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quality Action Platform</title>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#0b1020;color:#e8edf7;margin:0}main{max-width:1200px;margin:auto;padding:32px}.top{display:flex;justify-content:space-between;align-items:center}.pill{background:#18223b;padding:8px 12px;border-radius:20px;color:#7ce7bd}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.card{background:#131b30;border:1px solid #26324d;border-radius:14px;padding:18px}.n{font-size:32px;font-weight:700;margin-top:8px}table{width:100%;border-collapse:collapse;background:#131b30;border-radius:14px;overflow:hidden}th,td{text-align:left;padding:12px;border-bottom:1px solid #26324d;font-size:14px}th{color:#9cabc7}.PASS{color:#7ce7bd}.FAIL{color:#ff8492}h2{margin-top:30px}@media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}table{display:block;overflow:auto}}
+</style></head><body><main><div class="top"><div><h1>Manufacturing Quality</h1><div>Real-time decisions and traceability</div></div><div class="pill" id="health">● Connected</div></div>
+<section class="cards"><div class="card">Events<div class="n" id="events">0</div></div><div class="card">Failed<div class="n" id="failed">0</div></div><div class="card">Stale<div class="n" id="stale">0</div></div><div class="card">Pending actions<div class="n" id="pending">0</div></div></section>
+<h2>Latest quality events</h2><table><thead><tr><th>Event</th><th>Unit</th><th>Station</th><th>Test</th><th>Value</th><th>Result</th><th>Decision</th></tr></thead><tbody id="rows"></tbody></table>
+<h2>Quality actions</h2><table><thead><tr><th>Action</th><th>Unit</th><th>Type</th><th>Status</th><th>Attempts</th></tr></thead><tbody id="actions"></tbody></table>
+</main><script>
+async function load(){try{let s=await(await fetch('/api/summary')).json();events.textContent=s.events;failed.textContent=s.failed;stale.textContent=s.stale;pending.textContent=s.pending_actions;
+let es=await(await fetch('/api/events?limit=25')).json();rows.innerHTML=es.map(e=>`<tr><td>${e.event_id}</td><td>${e.unit_id}</td><td>${e.station_id}</td><td>${e.test_name}</td><td>${e.value} ${e.unit}</td><td class="${e.result}">${e.result}${e.stale?' / STALE':''}</td><td>${e.reason}</td></tr>`).join('');
+let as=await(await fetch('/api/actions?limit=25')).json();actions.innerHTML=as.map(a=>`<tr><td>${a.action_id}</td><td>${a.unit_id}</td><td>${a.action_type}</td><td>${a.status}</td><td>${a.attempts}</td></tr>`).join('');health.textContent='● Connected'}catch(e){health.textContent='● Offline'}}load();setInterval(load,3000);
+</script></body></html>
+
